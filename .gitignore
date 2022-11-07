@@ -1,0 +1,9 @@
+# python stuff
+__pycache__/
+
+# Environment
+.venv
+
+# configuration 
+dbconfig.py 
+dbconfig.txt
