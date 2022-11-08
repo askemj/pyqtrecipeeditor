@@ -1,8 +1,25 @@
-import mysql.connector
+import mysql.connector # FixMe generate requirements.txt 
 import json 
-from recipe import recipe, Tag, Ingredient
+from recipe import Recipe, Tag, Ingredient
 
 class DatabasePersistence:
+    """ DatabasePersistence class handles MariaDB CRUD operations 
+    
+    Attributes
+    ----------
+    config : dict 
+        dictionary of connection credentials 
+
+    Methods 
+    -------
+    test_connection()
+        tests connection 
+    select_recipe(recipe_id)
+        selects recipe based on recipe id 
+    insert_recipe(recipe)
+        inserts recipe in database 
+    """
+
     def __init__(self): #FixMe maybe implement databaseconnectionclass
         with open('dbconfig.txt') as f:
             data = f.read()
@@ -31,7 +48,62 @@ class DatabasePersistence:
             cnx.close()
             return success
 
-    def insert_recipe(self, recipe):
+    def select_recipe(self, recipe_id): # FixMe insert actual MySQL
+        _ingredient_list = []
+        _tags_list = []
+        ### get ingredients 
+        sql_ingredient_query = f""" ingredient query """    #FixMe insert this string and write it to give ID too!
+
+        try:
+            cnx = mysql.connector.connect(**self.config)
+            cursor = cnx.cursor()
+            cursor.execute(sql_ingredient_query)
+            result = cursor.fetchall()
+            for item in result: #consider getting ID as well 
+                ingredient = Ingredient(item[1], item[2], item[3], item[4], item[5], item[6])
+                #ingredient.ID = item[0]
+                _ingredient_list.append(ingredient)
+        except Exception as e:
+            print(e)
+        finally:
+            cnx.commit()
+            cnx.close()
+
+        ### Get tags 
+        sql_tag_query = f""" tag query """    #FixMe insert this string and write it to give ID too!
+
+        try:
+            cnx = mysql.connector.connect(**self.config)
+            cursor = cnx.cursor()
+            cursor.execute(sql_tag_query)
+            result = cursor.fetchall()
+            for item in result: #consider getting ID as well 
+                tag = Tag(item[1])
+                #tag.ID = item[0]
+                _tags_list.append(tag)
+        except Exception as e:
+            print(e)
+        finally:
+            cnx.commit()
+            cnx.close()
+
+        ### Get recipe info and construct recipe 
+        sql_recipe_info_query = f""" recipe info """ #FixMe insert this string and write it to give ID too!
+
+        try:
+            cnx = mysql.connector.connect(**self.config)
+            cursor = cnx.cursor()
+            cursor.execute(sql_recipe_info_query)
+            result = cursor.fetchone()
+            recipe = Recipe(result[1], result[2], result[3], result[4], result[5], result[6], _tags_list, _ingredient_list)
+            recipe.ID = result[0]
+        except Exception as e:
+            print(e)
+        finally:
+            cnx.commit()
+            cnx.close()
+
+    def insert_recipe(self, recipe): 
         """ Inserts recipe in database 
         
         args: recipe, custom recipe object
@@ -145,6 +217,6 @@ if __name__ == "__main__":
     new_tag = Tag('Lækkert')
     new_ingredient = Ingredient(2,'dl','chokoladesauce','Tørvarer','hovedingrediens',False)
     new_ingredient2 = Ingredient(3,'kugle(r)','is','Frost','hovedingrediens',False)
-    new_recipe = recipe('is og chokolade', 'Tilberedes lige inden servering', 2, 10, 15, 'Dessert', [new_tag], [new_ingredient, new_ingredient2])
+    new_recipe = Recipe('is og chokolade', 'Tilberedes lige inden servering', 2, 10, 15, 'Dessert', [new_tag], [new_ingredient, new_ingredient2])
     new_recipe.ID=7
     database.insert_recipe(new_recipe)
