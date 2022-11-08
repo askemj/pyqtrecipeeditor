@@ -103,6 +103,11 @@ class DatabasePersistence:
             cnx.commit()
             cnx.close()
 
+    def update_recipe(self, recipe):
+        old_recipe = self.select_recipe(recipe.ID)
+
+        
+
     def insert_recipe(self, recipe): 
         """ Inserts recipe in database 
         
