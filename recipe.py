@@ -24,7 +24,7 @@ class Ingredient(): #FixMe make groceryitem parent class and extend with self.fu
     def __str__(self):
         return '{quantity} {unit} {name}'.format(quantity = str(self.quantity), unit=self.unit, name=self.name)
 
-class recipe(): #FixMe write tests for this class and consider creating databasepersistenceclass and fix up docstrings 
+class Recipe(): #FixMe write tests for this class and consider creating databasepersistenceclass and fix up docstrings 
     """ Recipe class """
 
     def __init__(self, name, notes, Nservings, preparation_time, total_time, recipe_type, tags, ingredients):
@@ -69,4 +69,4 @@ class recipe(): #FixMe write tests for this class and consider creating database
 if __name__ == "__main__": 
     new_tag = Tag('Lækkert')
     new_ingredient = Ingredient(2,'dl','chokoladesauce','Tørvarer','hovedingrediens',False)
-    new_recipe = recipe('is og chokolade', 'Tilberedes lige inden servering', 2, 10, 15, 'Dessert', [new_tag], [new_ingredient])
+    new_recipe = Recipe('is og chokolade', 'Tilberedes lige inden servering', 2, 10, 15, 'Dessert', [new_tag], [new_ingredient])
