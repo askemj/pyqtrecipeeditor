@@ -35,7 +35,7 @@ class Recipe(): #FixMe write tests for this class and consider creating database
         preparation_time (int)
         total_time (int)
         recipe_type (str)
-        tags (list of str)
+        tags (list of Tag objects )
         ingredients (list of Ingredient objects) """
 
         self.name = name
