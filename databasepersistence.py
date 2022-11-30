@@ -103,9 +103,34 @@ class DatabasePersistence:
             cnx.commit()
             cnx.close()
 
-    def update_recipe(self, recipe):
-        old_recipe = self.select_recipe(recipe.ID)
+    def update_recipe(self, new_recipe):
+        old_recipe = self.select_recipe(new_recipe.ID) #selects recipe as is in database
+        rem_ingr, rem_tags = self._find_ingredients_for_deletion(new_recipe, old_recipe)
+        self._delete_ingredients(rem_ingr, rem_tags)
+        self.insert_recipe(new_recipe) #insert recipe also updates existing entries 
 
+    def _find_items_for_deletion(self, new_recipe, old_recipe):
+        ingredients_for_removal = []
+        for old_item in old_recipe.ingredients: 
+            if not any(new_item for new_item in new_recipe.ingredients if new_item.name == old_item.name): #if old item is not in new list, add to removal list 
+                ingredients_for_removal.append(old_item)
+        
+        tags_for_removal = []
+        ### #FixMe implement code for tag search 
+        return [ingredients_for_removal, tags_for_removal]
+
+    def _delete_items(self, ingredients_for_removal, tags_for_removal):
+        sql_delete_ingredients = "FROM .. DELETE item1, item 2"
+
+        try:
+            cnx = mysql.connector.connect(**self.config)
+            cursor = cnx.cursor()
+            cursor.execute(sql_delete_ingredients)
+        except Exception as e:
+            print(e)
+        finally:
+            cnx.commit()
+            cnx.close()
         
 
     def insert_recipe(self, recipe): 
