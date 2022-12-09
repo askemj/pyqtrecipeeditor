@@ -1,5 +1,6 @@
-from .PyQt-recipe-editor import DatabasePersistence #FixMe add __init__.py to root dir and/or set shellpath variable 
 import pytest
+from . import DatabasePersistence #FixMe add __init__.py to root dir and/or set shellpath variable 
+
 
 database = DatabasePersistence()
 
