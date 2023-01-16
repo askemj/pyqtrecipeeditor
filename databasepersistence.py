@@ -1,4 +1,5 @@
 import mysql.connector # FixMe generate requirements.txt 
+from mysql.connector import errorcode
 import json 
 from recipe import Recipe, Tag, Ingredient
 
@@ -104,7 +105,7 @@ class DatabasePersistence:
             cnx.close()
 
     def update_recipe(self, new_recipe):
-        old_recipe = self.select_recipe(new_recipe.ID) #selects recipe as is in database
+        old_recipe = self.select_recipe(new_recipe.ID) # retrieves recipe as is in database
         rem_ingr, rem_tags = self._find_ingredients_for_deletion(new_recipe, old_recipe)
         self._delete_ingredients(rem_ingr, rem_tags)
         self.insert_recipe(new_recipe) #insert recipe also updates existing entries 
