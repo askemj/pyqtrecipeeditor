@@ -9,7 +9,7 @@ class comboFunction(QComboBox):
     def getComboValue(self):
         return self.currentText() 
 
-class comboCategory():
+class comboCategory(QComboBox):
     def __init__(self, parent):
         super().__init__(parent) #parent will be the QTablewidget
         self.addItems(['Frugt & Grønt', 'Brød', 'Tørvarer'])
@@ -19,16 +19,16 @@ class comboCategory():
 
 class IngredientsTableWidget(QtWidgets.QTableWidget):
     def __init__(self, parent): #FixMe something wrong with the variable passed to the super here
-        super.__init__(parent)
+        super().__init__(parent)
         #self.inpIngredients = QtWidgets.QTableWidget(self.centralwidget)
         #self.inpIngredients.setGeometry(QtCore.QRect(20, 330, 691, 192))
         self.setObjectName("inpIngredients")
-        self.inpIngredients.setColumnCount(5)
-        self.inpIngredients.setRowCount(8)
+        self.setColumnCount(5) 
+        self.setRowCount(8)
         ROW_COUNT = 8
         for row in range(ROW_COUNT):
             item = QtWidgets.QTableWidgetItem()
-            self.inpIngredients.setVerticalHeaderItem(row, item)
+            self.setVerticalHeaderItem(row, item)
             comboFunc = comboFunction(self)
             self.setCellWidget(row, 3,comboFunc)
             comboCat = comboCategory(self)
@@ -47,7 +47,7 @@ class IngredientsTableWidget(QtWidgets.QTableWidget):
         self.setHorizontalHeaderItem(3, item)
         self.horizontalHeaderItem(3).setText("Function")
         item = QtWidgets.QTableWidgetItem()
-        self.inpIngredients.setHorizontalHeaderItem(4, item)
+        self.setHorizontalHeaderItem(4, item)
         self.horizontalHeaderItem(4).setText("Category")
 
 
