@@ -52,22 +52,25 @@ class IngredientsTableWidget(QtWidgets.QTableWidget):
             self.setCellWidget(row,5,cbox)
 
     def get_ingredients(self):
-        """ Returns ingredients list (list) """
+        """ Gets ingredients from view
+        Returns ingredients list (list) """
+
         n_rows = self.rowCount()
         ingredients_list = []
         for row in range(n_rows-1):
-            quantity = float(self.item(row, 0).text())
-            unit = self.item(row, 1).text()
-            name = self.item(row, 2).text()
-            function = self.cellWidget(row, 3).currentText() #NB nested combobox  
-            category = self.cellWidget(row, 4).currentText() #NB nested combobox  )
-            is_basic = False
-            if self.cellWidget(row, 5).isChecked():
-                is_basic = True
-            if name is not None and function is not None and category is not None:
+            if None not in (self.item(row, 0), self.item(row,1), self.item(row,2)): #Check valid entries 
+                quantity = float(self.item(row, 0).text())
+                unit = self.item(row, 1).text()
+                name = self.item(row, 2).text()
+                function = self.cellWidget(row, 3).currentText() #NB nested combobox  
+                category = self.cellWidget(row, 4).currentText() #NB nested combobox  )
+                is_basic = False
+                if self.cellWidget(row, 5).isChecked():
+                    is_basic = True
                 ingredient = Ingredient(quantity, unit, name, category, function, is_basic)
-                print(ingredient) ########## FixMe Delete me in production edition 
                 ingredients_list.append(ingredient)
+            else:
+                print("Error in row: " + str(row) + ", row skipped")
         return ingredients_list
 
 
