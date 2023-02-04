@@ -22,7 +22,7 @@ class Ingredient(): #FixMe make groceryitem parent class and extend with self.fu
             return False
 
     def __str__(self):
-        return f'{quantity} {unit} {name}'.format(quantity = str(self.quantity), unit=self.unit, name=self.name)
+        return f'{self.quantity} {self.unit} {self.name}'.format(quantity = str(self.quantity), unit=self.unit, name=self.name)
 
 class Recipe(): #FixMe write tests for this class and consider creating databasepersistenceclass and fix up docstrings 
     """ Recipe class """
