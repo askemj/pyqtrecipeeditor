@@ -31,8 +31,8 @@ class Ui_MainWindow(object):
         self.inpRecNotes.setObjectName("inpRecNotes")
 
         ### Ingredient table widget 
-        self.inpIngredients = IngredientsTableWidget(self.centralwidget)
-        self.inpIngredients.setGeometry(QtCore.QRect(20, 330, 691, 192))
+        ###self.inpIngredients = IngredientsTableWidget(self.centralwidget)
+        ###self.inpIngredients.setGeometry(QtCore.QRect(20, 330, 691, 192))
         #
         # self.inpIngredients = QtWidgets.QTableWidget(self.centralwidget)
         # self.inpIngredients.setGeometry(QtCore.QRect(20, 330, 691, 192))
