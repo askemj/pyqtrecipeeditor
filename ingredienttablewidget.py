@@ -13,10 +13,11 @@ class comboCategory(QComboBox):
         self.addItems(categories)
 
 class IngredientsTableWidget(QtWidgets.QTableWidget):
+    """ Provides ingredient specific TableWidget functionality """
     ingredient_functions = []
     ingredient_categories = []
 
-    def __init__(self, parent, ingredient_functions, ingredient_categories): #FixMe something wrong with the variable passed to the super here
+    def __init__(self, parent, ingredient_functions, ingredient_categories): 
         """ Custom Ingredient Table widget 
         
         args 
@@ -29,8 +30,13 @@ class IngredientsTableWidget(QtWidgets.QTableWidget):
         self.ingredient_categories = ingredient_categories
         self.setObjectName("inpIngredients")
         self.setColumnCount(6) 
-        self.setRowCount(8)
+        self._set_column_headers()
 
+        INITIAL_ROW_COUNT = 8
+        for row in range(INITIAL_ROW_COUNT):
+            self._add_row_at_index(row)
+
+    def _set_column_headers(self):
         item = QtWidgets.QTableWidgetItem()
         self.setHorizontalHeaderItem(0, item)
         self.horizontalHeaderItem(0).setText("Quantity")
@@ -50,20 +56,12 @@ class IngredientsTableWidget(QtWidgets.QTableWidget):
         self.setHorizontalHeaderItem(5, item)
         self.horizontalHeaderItem(5).setText("Basic Item?")
 
-        ROW_COUNT = 8
-        for row in range(ROW_COUNT):
-            item = QtWidgets.QTableWidgetItem()
-            self.setVerticalHeaderItem(row, item)
-            comboFunc = comboFunction(self, self.ingredient_functions)
-            self.setCellWidget(row, 3,comboFunc)
-            comboCat = comboCategory(self, self.ingredient_categories)
-            self.setCellWidget(row, 4, comboCat)
-            cbox = QCheckBox(self)
-            self.setCellWidget(row,5,cbox)
-
     def get_ingredients(self):
         """ Gets ingredients from view
-        Returns ingredients list (list) """
+        
+        Returns
+            list: list of ingredients
+        """
 
         n_rows = self.rowCount()
         ingredients_list = []
@@ -83,13 +81,32 @@ class IngredientsTableWidget(QtWidgets.QTableWidget):
                 print("Error in row: " + str(row) + ", row skipped")
         return ingredients_list
 
+    def _add_row_at_index(self, row):        
+        item = QtWidgets.QTableWidgetItem()
+        self.setVerticalHeaderItem(row, item)
+        comboFunc = comboFunction(self, self.ingredient_functions)
+        self.setCellWidget(row, 3,comboFunc)
+        comboCat = comboCategory(self, self.ingredient_categories)
+        self.setCellWidget(row, 4, comboCat)
+        cbox = QCheckBox(self)
+        self.setCellWidget(row,5,cbox)
+
     def add_row(self):
         """ Adds row at the end of the QTableWidget """
-        #code to add row
-        pass
+        current_number_of_rows = self.rowCount()
+        self._add_row_at_index(current_number_of_rows + 1)
 
-    def remove_row(self):
-        """ Removes currently selected row if a row is selected """
-        #read current selected row if row is selected and delete that row 
-        pass 
+    def remove_row(self): 
+        """ Removes currently selected row if a row is selected 
+        
+        Returns:
+            bool: True for success, False otherwise.
+        """
+
+        if self.currentRow() > 0: 
+            self.remove_row(self.currentRow)
+            return True
+        else: 
+            return False
+
 
