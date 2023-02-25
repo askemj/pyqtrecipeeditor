@@ -9,7 +9,7 @@ class PyQtRecipeEditorController():
         self._connectSignalsAndSlots()
 
     def _connectSignalsAndSlots(self):
-        self._view.btnValidate.clicked.connect(self.on_insert_recipe_clicked)
+        self._view.btnValidate.clicked.connect(self.on_validate_clicked)
 
     def read_recipe_from_view(self): #FixMe read full recipe and cast as recipe instance 
         """ reads recipe from gui and returns recipe object 
@@ -32,17 +32,22 @@ class PyQtRecipeEditorController():
         return tags 
 
     def read_ingredients_from_view(self):
-        ingredients = []
-        for row in range(self._view.inpIngredients.rowCount()):
-            quantity = self._view.inpIngredients.item(row, 0).text()
-            unit = self._view.inpIngredients.item(row, 1).text()
-            name = self._view.inpIngredients.item(row, 2).text()
-            function = self._view.inpIngredients.item(row, 3).text()
-            category = self._view.inpIngredients.item(row, 4).text()
-            ingredient = Ingredient(quantity=quantity, unit=unit, name=name, function=function, category=category, isBasic=False) #FixMe hardcoded to not render basic items
-            ingredients.append(ingredient)
+        # ingredients = []
+        # for row in range(self._view.inpIngredients.rowCount()):
+        #     quantity = self._view.inpIngredients.item(row, 0).text()
+        #     unit = self._view.inpIngredients.item(row, 1).text()
+        #     name = self._view.inpIngredients.item(row, 2).text()
+        #     function = self._view.inpIngredients.item(row, 3).text()
+        #     category = self._view.inpIngredients.item(row, 4).text()
+        #     ingredient = Ingredient(quantity=quantity, unit=unit, name=name, function=function, category=category, isBasic=False) #FixMe hardcoded to not render basic items
+        #     ingredients.append(ingredient)
+        ingredients = self._view.inpIngredients.get_ingredients()
         return ingredients
 
 
     def on_insert_recipe_clicked(self): #connect to databasepersistence class 
+        return
+
+    def on_validate_clicked(self):
         print(self.read_recipe_from_view())
+        pass

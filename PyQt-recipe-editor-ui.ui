@@ -55,81 +55,6 @@
      </rect>
     </property>
    </widget>
-   <widget class="QTableWidget" name="inpIngredients">
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>330</y>
-      <width>691</width>
-      <height>192</height>
-     </rect>
-    </property>
-    <row>
-     <property name="text">
-      <string>Ny række</string>
-     </property>
-    </row>
-    <row>
-     <property name="text">
-      <string>Ny række</string>
-     </property>
-    </row>
-    <row>
-     <property name="text">
-      <string>Ny række</string>
-     </property>
-    </row>
-    <row>
-     <property name="text">
-      <string>Ny række</string>
-     </property>
-    </row>
-    <row>
-     <property name="text">
-      <string>Ny række</string>
-     </property>
-    </row>
-    <row>
-     <property name="text">
-      <string>Ny række</string>
-     </property>
-    </row>
-    <row>
-     <property name="text">
-      <string>Ny række</string>
-     </property>
-    </row>
-    <row>
-     <property name="text">
-      <string>Ny række</string>
-     </property>
-    </row>
-    <column>
-     <property name="text">
-      <string>Quantity</string>
-     </property>
-    </column>
-    <column>
-     <property name="text">
-      <string>Unit</string>
-     </property>
-    </column>
-    <column>
-     <property name="text">
-      <string>Name</string>
-     </property>
-    </column>
-    <column>
-     <property name="text">
-      <string>Function</string>
-     </property>
-    </column>
-    <column>
-     <property name="text">
-      <string>Category</string>
-     </property>
-    </column>
-   </widget>
    <widget class="QListWidget" name="inpTags">
     <property name="geometry">
      <rect>
@@ -315,6 +240,16 @@
       <y>170</y>
       <width>331</width>
       <height>25</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QWidget" name="ingredientWidget" native="true">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>340</y>
+      <width>691</width>
+      <height>171</height>
      </rect>
     </property>
    </widget>
