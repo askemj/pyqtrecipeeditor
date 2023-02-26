@@ -1,5 +1,4 @@
 from PyQt_recipe_editor_mainwindow import Ui_MainWindow
-from tablewidget import IngredientsTableWidget
 from PyQt5 import QtCore, QtGui, QtWidgets
 from ingredienttablewidget import IngredientsTableWidget
 
@@ -22,13 +21,13 @@ class RecipeEditorView(Ui_MainWindow):
             'recipe_types': []
         }
 
-    def set_static_database_info(self, database_model):
+    def set_static_database_info(self):
         """ Sets up comboboxes in Recipe Editor View """
 
         db = self.database_model 
         if self.database_model is not None: 
-            self._set_ingredients_tablewidget(db.ingredient_categories, db.ingredient_functions)
-            self.inpRecType.addItems(database_model.recipe_types)
+            self._set_ingredients_tablewidget(db['ingredient_categories'], db["ingredient_functions"])
+            self.inpRecType.addItems(db["recipe_types"])
 
 
     def _set_ingredients_tablewidget(self, ingredient_categories, ingredient_functions):

@@ -1,4 +1,5 @@
-from recipe import Recipe, Ingredient
+from recipe import Recipe
+from PyQt5.QtWidgets import QMessageBox
 
 class PyQtRecipeEditorController():
     """ PyQt Recipe Editor Controller Class """ 
@@ -7,6 +8,16 @@ class PyQtRecipeEditorController():
         self._database = database 
         self._view = view 
         self._connectSignalsAndSlots()
+        if self._database.test_connection():
+            self._view.database_model = self._database.read_all_secondary_database_data()
+            self._view.set_static_database_info()
+        else:
+            msg_box = QMessageBox()
+            msg_box.setIcon(QMessageBox.critical )
+            msg_box.setText("Database connection error!")
+            msg_box.setInformativeText("The database connection could not be established")
+            msg_box.setWindowTitle("Critical error")
+            #msg_box.setDetailedText("...insert actual error message")
 
     def _connectSignalsAndSlots(self):
         self._view.btnValidate.clicked.connect(self.on_validate_clicked)
