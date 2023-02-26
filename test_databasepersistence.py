@@ -75,6 +75,18 @@ def test_find_items_for_deletion(test_recipe_1): #test_recipe_1):
     item = items_for_deletion[0][0]
     assert item.name == 'vaniljeis'
 
+def test_read_all_secondary_data():
+    """ NB makes actual call to database so db needs to be online and connection available """
+    database_dict = database.read_all_secondary_database_data()
+    #            'tags': [], 'ingredient_functions': [], 'ingredient_categories': [], 'ingredients': [], 'recipe_types': [], 
+    assert {
+                database_dict['tags'][0] =='Lækkert' and 
+                database_dict['ingredient_functions'][0] == 'Bruger Rest' and
+                database_dict['ingredient_categories'][0] == 'Brød' and 
+                database_dict['ingredients'][0]['name'] == 'agurk' and 
+                database_dict['recipe_types'][0] == 'Dessert'
+    }
+
 #print( database._find_items_for_deletion(new_recipe2, new_recipe)[0][0].name ) 
 
 #find_items_for_deletion()
