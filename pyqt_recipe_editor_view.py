@@ -13,13 +13,18 @@ class RecipeEditorView(Ui_MainWindow):
         super().__init__()
         super().setupUi(main_window)
 
-    def setup_UI(self, database_model):
-        """ Sets up comboboxes in Recipe Editor View 
-        
-        args
-            database_model (databasemodel): static offline data from database """
+        #set dictionary for static offline database data
+        self.database_model = {
+            'tags': [],
+            'ingredient_functions': [],
+            'ingredient_categories': [],
+            'ingredients': [],
+            'recipe_types': []
+        }
 
-        self.database_model = database_model
+    def set_static_database_info(self, database_model):
+        """ Sets up comboboxes in Recipe Editor View """
+
         db = self.database_model 
         if self.database_model is not None: 
             self._set_ingredients_tablewidget(db.ingredient_categories, db.ingredient_functions)
