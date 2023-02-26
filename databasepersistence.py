@@ -121,7 +121,7 @@ class DatabasePersistence:
         return [ingredients_for_removal, tags_for_removal]
 
     def _delete_items(self, ingredients_for_removal, tags_for_removal):
-        sql_delete_ingredients = "FROM .. DELETE item1, item 2"
+        sql_delete_ingredients = "FROM .. DELETE item1, item 2" #FixMe Not yet implemented 
 
         try:
             cnx = mysql.connector.connect(**self.config)
@@ -133,7 +133,6 @@ class DatabasePersistence:
             cnx.commit()
             cnx.close()
         
-
     def insert_recipe(self, recipe): 
         """ Inserts recipe in database 
         
@@ -239,19 +238,69 @@ class DatabasePersistence:
 
         #FixMe implement batch type mysql construction 
     
+    def read_all_secondary_database_data(self):
+        """ Reads all supplemental databasedata
+        
+        Returns 
+            secondary_db_data (dict), tags (list), ingredient_functions (list), ingredient_categories (list), ingredients (list(dict)) NB Not ingredient-class instances, recipe_types (list)"""
+        
+        db_model = {
+            'tags': [],
+            'ingredient_functions': [],
+            'ingredient_categories': [],
+            'ingredients': [],
+            'recipe_types': []
+        }
+
+        sql_tags_query = "SELECT Tag.tag_tekst FROM Tag;"
+        sql_ingr_function_query = "SELECT Varefunktion.varefunktion_tekst FROM Varefunktion;"
+        sql_ingr_category_query = "SELECT Varekategori.varekategori_tekst FROM Varekategori;"
+        sql_type_query = "SELECT Opskriftstype.opskriftstype_tekst FROM Opskriftstype;"
+        queries = [[sql_tags_query, 'tags'], [sql_ingr_function_query, 'ingredient_functions'], [sql_ingr_category_query, 'ingredient_categories'], [sql_type_query, 'recipe_types']]
+
+        sql_ingredients_query = """ SELECT Vare.vare_navn, Vare.basisvare, Varekategori.varekategori_tekst FROM Vare
+            INNER JOIN Varekategori ON Vare.Varekategori_varekategori_id = Varekategori.varekategori_id;"""
+        try:
+            # tags, ingr_fcts, ingr_cats and types
+            cnx = mysql.connector.connect(**self.config)
+            cursor = cnx.cursor()
+            for query, field in queries:
+                cursor.execute(query)
+                response = cursor.fetchall()
+                for item in response:
+                    result = item[0]
+                    db_model[field].append(result)
+            
+            # ingredients 
+            cursor.execute(sql_ingredients_query)
+            response = cursor.fetchall()
+            for item in response:  
+                ingredient = {'name': item[0],
+                        'isBasic': item[1],
+                        'category': item[2]
+                    }
+                db_model['ingredients'].append(ingredient)
+
+        except Exception as e:
+            print(e)
+        finally:
+            cnx.close()
+        return db_model
 
     #FixMe finish implementing the rest of the methods of this class 
 
 if __name__ == "__main__":
     database = DatabasePersistence()
 
-    new_tag = Tag('Lækkert')
-    new_ingredient = Ingredient(2,'dl','chokoladesauce','Tørvarer','hovedingrediens',False)
-    new_ingredient2 = Ingredient(3,'kugle(r)','is','Frost','hovedingrediens',False)
-    new_ingredient3 = Ingredient(2,'spsk','frysetørret hindbær','Tørvarer','hovedingrediens',False)
-    new_recipe = Recipe('is og chokolade', 'Tilberedes lige inden servering', 2, 10, 15, 'Dessert', [new_tag], [new_ingredient, new_ingredient2])
-    new_recipe2 = Recipe('is og chokolade', 'Tilberedes lige inden servering', 2, 10, 15, 'Dessert', [new_tag], [new_ingredient3, new_ingredient2])
-    new_recipe.ID=7
+    #new_tag = Tag('Lækkert')
+    #new_ingredient = Ingredient(2,'dl','chokoladesauce','Tørvarer','hovedingrediens',False)
+    #new_ingredient2 = Ingredient(3,'kugle(r)','is','Frost','hovedingrediens',False)
+    #new_ingredient3 = Ingredient(2,'spsk','frysetørret hindbær','Tørvarer','hovedingrediens',False)
+    #new_recipe = Recipe('is og chokolade', 'Tilberedes lige inden servering', 2, 10, 15, 'Dessert', [new_tag], [new_ingredient, new_ingredient2])
+    #new_recipe2 = Recipe('is og chokolade', 'Tilberedes lige inden servering', 2, 10, 15, 'Dessert', [new_tag], [new_ingredient3, new_ingredient2])
+    #new_recipe.ID=7
     #database.insert_recipe(new_recipe)
     
-    print( database._find_items_for_deletion(new_recipe2, new_recipe)[0][0].name )
+    #print( database._find_items_for_deletion(new_recipe2, new_recipe)[0][0].name )
+    db_info = database.read_all_secondary_database_data()
+    print(db_info)
