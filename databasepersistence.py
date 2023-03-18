@@ -25,7 +25,6 @@ class DatabasePersistence:
         with open('dbconfig.txt') as f:
             data = f.read()
         self.config = json.loads(data) #NB must be double quotes and bool follow json style so true not True
-        self.test_connection()
 
     def test_connection(self):
         """ Tests database connection by connecting to database using credentials from config-file. 
