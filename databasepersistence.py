@@ -32,6 +32,7 @@ class DatabasePersistence:
         Returns success (bool) True if connection is successfull
         """
         success = False
+        cnx = None 
         try:
             cnx = mysql.connector.connect(**self.config)
             #cursor = cnx.cursor() #FixMe return some info from DB 
@@ -46,7 +47,8 @@ class DatabasePersistence:
             else:
                 print(err)
         finally:
-            cnx.close()
+            if cnx is not None:
+                    cnx.close()
             return success
 
     def select_recipe(self, recipe_id): # FixMe insert actual MySQL
