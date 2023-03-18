@@ -21,7 +21,9 @@ class PyQtRecipeEditorController():
             #msg_box.setDetailedText("...insert actual error message")
 
     def _connectSignalsAndSlots(self):
-        pass
+        #self._view.btnValidate.clicked.connect(self.on_validate_clicked)
+        self._view.btnAddIngrRow.clicked.connect(self._view.inpIngredients.add_row)
+        self._view.btnDelIngrRow.clicked.connect(self._view.inpIngredients.remove_current_row)
 
     def read_recipe_from_view(self): #FixMe read full recipe and cast as recipe instance 
         """ reads recipe from gui and returns recipe object 

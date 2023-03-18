@@ -105,17 +105,18 @@ class IngredientsTableWidget(QtWidgets.QTableWidget):
         """ Adds row at the end of the QTableWidget """
 
         current_number_of_rows = self.rowCount()
-        self._add_row_at_index(current_number_of_rows + 1)
+        self.setRowCount(current_number_of_rows + 1)
+        self._add_row_at_index(current_number_of_rows) #NB 0-indexed!
 
-    def remove_row(self): 
+    def remove_current_row(self): 
         """ Removes currently selected row if a row is selected 
         
         Returns:
             bool: True for success, False otherwise.
         """
 
-        if self.currentRow() > 0: 
-            self.remove_row(self.currentRow)
+        if self.currentRow() >= 0: #ensure a row is picked 
+            self.removeRow(self.currentRow())
             return True
         else: 
             return False
