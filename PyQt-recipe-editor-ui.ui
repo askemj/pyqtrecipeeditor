@@ -55,7 +55,7 @@
      </rect>
     </property>
    </widget>
-   <widget class="QListWidget" name="inpTags">
+   <widget class="QListWidget" name="disTags">
     <property name="geometry">
      <rect>
       <x>460</x>
@@ -261,7 +261,7 @@
      <string>-</string>
     </property>
    </widget>
-   <widget class="QLineEdit" name="lineEdit">
+   <widget class="QLineEdit" name="inpTag">
     <property name="geometry">
      <rect>
       <x>460</x>

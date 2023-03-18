@@ -1,5 +1,5 @@
 from recipe import Recipe
-from PyQt5.QtWidgets import QMessageBox
+from PyQt5.QtWidgets import QMessageBox, QListWidgetItem
 
 class PyQtRecipeEditorController():
     """ PyQt Recipe Editor Controller Class """ 
@@ -20,10 +20,14 @@ class PyQtRecipeEditorController():
             msg_box.exec()
             #msg_box.setDetailedText("...insert actual error message")
 
-    def _connectSignalsAndSlots(self):
-        #self._view.btnValidate.clicked.connect(self.on_validate_clicked)
+    def _connectSignalsAndSlots(self):     
+        #Ingredients 
         self._view.btnAddIngrRow.clicked.connect(self._view.inpIngredients.add_row)
         self._view.btnDelIngrRow.clicked.connect(self._view.inpIngredients.remove_current_row)
+
+        #Tags 
+        self._view.btnAddTag.clicked.connect(self.on_add_tag_clicked)
+        self._view.btnDelTag.clicked.connect(self.on_del_tag_clicked)
 
     def read_recipe_from_view(self): #FixMe read full recipe and cast as recipe instance 
         """ reads recipe from gui and returns recipe object 
@@ -41,8 +45,8 @@ class PyQtRecipeEditorController():
 
     def read_tags_from_view(self):
         tags = []
-        for n in range(self._view.inpTags.count()-1):
-            tags.append(self._view.inpTags.item(n))
+        for n in range(self._view.disTags.count()-1):
+            tags.append( str(self._view.inpTags.item(n))) #NB item is a QListWidgetItem
         return tags 
 
     def read_ingredients_from_view(self):
@@ -57,6 +61,15 @@ class PyQtRecipeEditorController():
         #     ingredients.append(ingredient)
         ingredients = self._view.inpIngredients.get_ingredients()
         return ingredients
+
+    def on_add_tag_clicked(self):
+        tag = QListWidgetItem(self._view.inpTag.text())
+        self._view.disTags.addItem(tag)
+        self._view.inpTag.setText("")
+
+    def on_del_tag_clicked(self):
+        row = self._view.disTags.currentRow()
+        self._view.disTags.takeItem(row)
 
 
     def on_insert_recipe_clicked(self): #connect to databasepersistence class 
