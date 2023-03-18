@@ -10,13 +10,14 @@ class PyQtRecipeEditorController():
         self._connectSignalsAndSlots()
         if self._database.test_connection():
             self._view.database_model = self._database.read_all_secondary_database_data()
-            self._view.set_static_database_info()
+            self._view.load_static_database_data() 
         else:
             msg_box = QMessageBox()
-            msg_box.setIcon(QMessageBox.critical )
+            msg_box.setIcon(QMessageBox.Critical )
             msg_box.setText("Database connection error!")
             msg_box.setInformativeText("The database connection could not be established")
             msg_box.setWindowTitle("Critical error")
+            msg_box.exec()
             #msg_box.setDetailedText("...insert actual error message")
 
     def _connectSignalsAndSlots(self):

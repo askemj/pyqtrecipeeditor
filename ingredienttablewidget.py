@@ -16,25 +16,35 @@ class IngredientsTableWidget(QtWidgets.QTableWidget):
     """ Provides ingredient specific TableWidget functionality """
     ingredient_functions = []
     ingredient_categories = []
+    INITIAL_ROW_COUNT = 8
 
-    def __init__(self, parent, ingredient_functions, ingredient_categories): 
+    def __init__(self, parent): 
         """ Custom Ingredient Table widget 
         
         args 
             parent (QWidget): central widget 
-            ingredient_functions (list): list of ingredient function options for combobox
-            ingredient_categories (list): list of ingredient category options for combobox
         """
         super().__init__(parent)
-        self.ingredient_functions = ingredient_functions
-        self.ingredient_categories = ingredient_categories
         self.setObjectName("inpIngredients")
         self.setColumnCount(6) 
         self._set_column_headers()
+        self.setRowCount(self.INITIAL_ROW_COUNT)
 
-        INITIAL_ROW_COUNT = 8
-        for row in range(INITIAL_ROW_COUNT):
+    def initiate_rows(self, ingredient_functions, ingredient_categories):
+        """ initiate initial rows, for calling once database is ready
+        
+        args 
+            ingredient_functions (list): list of ingredient function options for combobox
+            ingredient_categories (list): list of ingredient category options for combobox
+        """
+
+        self.ingredient_functions = ingredient_functions
+        self.ingredient_categories = ingredient_categories
+        
+        
+        for row in range(self.INITIAL_ROW_COUNT):
             self._add_row_at_index(row)
+
 
     def _set_column_headers(self):
         item = QtWidgets.QTableWidgetItem()
@@ -81,7 +91,7 @@ class IngredientsTableWidget(QtWidgets.QTableWidget):
                 print("Error in row: " + str(row) + ", row skipped")
         return ingredients_list
 
-    def _add_row_at_index(self, row):        
+    def _add_row_at_index(self, row):   
         item = QtWidgets.QTableWidgetItem()
         self.setVerticalHeaderItem(row, item)
         comboFunc = comboFunction(self, self.ingredient_functions)
@@ -93,6 +103,7 @@ class IngredientsTableWidget(QtWidgets.QTableWidget):
 
     def add_row(self):
         """ Adds row at the end of the QTableWidget """
+
         current_number_of_rows = self.rowCount()
         self._add_row_at_index(current_number_of_rows + 1)
 
