@@ -140,7 +140,7 @@ class DatabasePersistence:
         args: recipe, custom recipe object
         returns: status (boolean) true if succesfull insert
         """
-
+        ### Recipe info 
         sql_recipe_info_str = f"""INSERT INTO Ret (Ret.ret_navn, Ret.noter, Ret.forberedelsestid_tid,
 	        Ret.totaltid_tid, Ret.antal_portioner, Ret.Opskriftstype_opskriftstype_id )
             VALUES ('{recipe.name}', '{recipe.notes}', {str(recipe.preparation_time)}, {str(recipe.total_time)}, {str(recipe.N_servings)}, 
@@ -166,16 +166,17 @@ class DatabasePersistence:
             cnx.commit()
             cnx.close()
 
+        ### Tags 
         try:
             cnx = mysql.connector.connect(**self.config)
             cursor = cnx.cursor()
             for tag in recipe.tags: #FixMe probably insert or ignore instead of on duplicate key ...
                 sql_tag_insert_str = f""" INSERT INTO Tag (Tag.tag_tekst) 
-                    VALUES ('{tag.text}')
+                    VALUES ('{tag}')
                     ON DUPLICATE KEY UPDATE
-                    Tag.tag_tekst = '{tag.text}';"""
+                    Tag.tag_tekst = '{tag}';"""
                 cursor.execute(sql_tag_insert_str)
-                cursor.execute(f"""SELECT Tag.tag_id FROM Tag WHERE Tag.tag_tekst = '{tag.text}'""")  #NB in case of update lastrowid is always 0 
+                cursor.execute(f"""SELECT Tag.tag_id FROM Tag WHERE Tag.tag_tekst = '{tag}'""")  #NB in case of update lastrowid is always 0 
                 tag.ID = int( cursor.fetchone()[0] ) #FixMe NB there may be an error if the cursor 
                 #tag.ID = cursor.lastrowid
                 #print(f'recipe id = {recipe.ID}, tag ID is {tag.ID}')
@@ -188,6 +189,7 @@ class DatabasePersistence:
             cnx.commit()
             cnx.close()
         
+        ### Ingredients 
         try: #FixMe remember cases where not all info is defined, eg no unit 
             cnx = mysql.connector.connect(**self.config)
             cursor = cnx.cursor()
