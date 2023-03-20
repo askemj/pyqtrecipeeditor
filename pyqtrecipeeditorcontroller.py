@@ -39,14 +39,19 @@ class PyQtRecipeEditorController():
             recipe (recipe object)  """
         
         name = self._view.inpRecTitle.text()
-        n_servs = self._view.inpNServings.text()
+        n_servs = self._view.inpNServings.text() #FixMe must be cast as float !!!
         prep_time = self._view.inpPrepTime.text()
         tot_time = self._view.inpTotTime.text()
         notes = self._view.inpRecNotes.toPlainText()
         rec_type = self._view.inpRecType.currentText()
         tags = self._read_tags_from_view()
         ingredients = self._read_ingredients_from_view()
-        recipe = Recipe(name, notes,n_servs, prep_time, tot_time, rec_type, tags, ingredients)
+        recipe = None
+        if "" not in [name, n_servs, prep_time, tot_time]: 
+            n_servs = float(n_servs)
+            prep_time = float(prep_time)
+            tot_time = float(tot_time)
+            recipe = Recipe(name, notes,n_servs, prep_time, tot_time, rec_type, tags, ingredients)
         return recipe 
 
     def _read_tags_from_view(self):
@@ -70,5 +75,13 @@ class PyQtRecipeEditorController():
 
     def on_insert_recipe_clicked(self): #connect to databasepersistence class 
         recipe = self.read_recipe_from_view()
-        print(recipe)
+        if recipe is not None: 
+            success = self._database.insert_recipe(recipe)
+            if success:
+                print("Recipe successfully inserted!")
+            elif not success:
+                print("An error occurred, recipe not inserted!")
+        else:
+            print("Recipe was not read correctly, please check your input")
+    
 
