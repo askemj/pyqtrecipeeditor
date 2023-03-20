@@ -78,8 +78,8 @@ class IngredientsTableWidget(QtWidgets.QTableWidget):
         for row in range(n_rows-1):
             if None not in (self.item(row, 0), self.item(row,1), self.item(row,2)): #Check valid entries 
                 quantity = float(self.item(row, 0).text())
-                unit = self.item(row, 1).text()
-                name = self.item(row, 2).text()
+                unit = self.item(row, 1).text().strip() #stripped of leading and trailing whitespaces
+                name = self.item(row, 2).text().strip()
                 function = self.cellWidget(row, 3).currentText() #NB nested combobox  
                 category = self.cellWidget(row, 4).currentText() #NB nested combobox  )
                 is_basic = False
