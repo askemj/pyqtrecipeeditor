@@ -1,4 +1,4 @@
-from recipe import Recipe
+from recipe import Recipe, Tag
 from PyQt5.QtWidgets import QMessageBox, QListWidgetItem
 
 class PyQtRecipeEditorController():
@@ -57,7 +57,7 @@ class PyQtRecipeEditorController():
     def _read_tags_from_view(self):
         tags = []
         for n in range(self._view.disTags.count()):
-            tags.append( str(self._view.disTags.item(n))) #NB item is a QListWidgetItem
+            tags.append(Tag(str(self._view.disTags.item(n).text()))) #NB item is a QListWidgetItem
         return tags 
 
     def _read_ingredients_from_view(self):
@@ -80,7 +80,7 @@ class PyQtRecipeEditorController():
             if success:
                 print("Recipe successfully inserted!")
             elif not success:
-                print("An error occurred, recipe not inserted!")
+                print("An error occurred, recipe not properly inserted!")
         else:
             print("Recipe was not read correctly, please check your input")
     

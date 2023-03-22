@@ -140,6 +140,7 @@ class DatabasePersistence:
         args: recipe, custom recipe object
         returns: status (boolean) true if succesfull insert
         """
+        status = True
         ### Recipe info 
         sql_recipe_info_str = f"""INSERT INTO Ret (Ret.ret_navn, Ret.noter, Ret.forberedelsestid_tid,
 	        Ret.totaltid_tid, Ret.antal_portioner, Ret.Opskriftstype_opskriftstype_id )
@@ -159,9 +160,10 @@ class DatabasePersistence:
             cursor.execute(sql_recipe_info_str)
             cursor.execute(f"""SELECT Ret.ret_id FROM Ret WHERE Ret.ret_navn = '{recipe.name}'""")  #NB in case of update lastrowid is always 0 
             recipe.ID = int( cursor.fetchone()[0] ) #FixMe NB there may be an error if the cursor 
-            print(str(recipe.ID)) 
+            print("recipe id is " + str(recipe.ID) + " for recipe: " + recipe.name) 
         except Exception as e:
             print(e)
+            status = False
         finally:
             cnx.commit()
             cnx.close()
@@ -172,19 +174,21 @@ class DatabasePersistence:
             cursor = cnx.cursor()
             for tag in recipe.tags: #FixMe probably insert or ignore instead of on duplicate key ...
                 sql_tag_insert_str = f""" INSERT INTO Tag (Tag.tag_tekst) 
-                    VALUES ('{tag}')
+                    VALUES ('{tag.text}')
                     ON DUPLICATE KEY UPDATE
-                    Tag.tag_tekst = '{tag}';"""
+                    Tag.tag_tekst = '{tag.text}';"""
+                print(sql_tag_insert_str)
                 cursor.execute(sql_tag_insert_str)
-                cursor.execute(f"""SELECT Tag.tag_id FROM Tag WHERE Tag.tag_tekst = '{tag}'""")  #NB in case of update lastrowid is always 0 
+                cursor.execute(f"""SELECT Tag.tag_id FROM Tag WHERE Tag.tag_tekst = '{tag.text}'""")  #NB in case of update lastrowid is always 0 
                 tag.ID = int( cursor.fetchone()[0] ) #FixMe NB there may be an error if the cursor 
-                #tag.ID = cursor.lastrowid
-                #print(f'recipe id = {recipe.ID}, tag ID is {tag.ID}')
+                #tag.ID = cursor.lastrowid 
+                print(f'recipe id = {recipe.ID}, tag ID is {tag.ID}')
                 sql_tag_link_to_recipe = f""" INSERT INTO RetTag (RetTag.Ret_ret_id, RetTag.Tag_tag_id)
                     VALUES ({recipe.ID}, {tag.ID});""" #FixMe fix for duplicate entries 
                 cursor.execute(sql_tag_link_to_recipe)
         except Exception as e:
             print(e)
+            status = False
         finally:
             cnx.commit()
             cnx.close()
@@ -230,16 +234,16 @@ class DatabasePersistence:
                         RetVare.Vare_vare_id = {ingredient.ID},
                         RetVare.Varefunktion_Varefunktion_id = 
                             (SELECT Varefunktion.varefunktion_id FROM Varefunktion WHERE Varefunktion.Varefunktion_tekst = '{ingredient.function}');"""
+                print(sql_link_ingredient_info_to_recipe)
                 cursor.execute(sql_link_ingredient_info_to_recipe)
                 print(sql_link_ingredient_info_to_recipe)
         except Exception as e:
             print(e)
+            status = False
         finally:
             cnx.commit()
             cnx.close()
-
-
-        #FixMe implement batch type mysql construction 
+        return status
     
     def read_all_secondary_database_data(self):
         """ Reads all supplemental databasedata
