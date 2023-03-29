@@ -29,6 +29,10 @@ class PyQtRecipeEditorController():
         self._view.btnAddTag.clicked.connect(self.on_add_tag_clicked)
         self._view.btnDelTag.clicked.connect(self.on_del_tag_clicked)
 
+        #Recipe Assistant 
+        self._view.inpIngredients.cellActivated.connect(self.on_inpIngredients_cell_activated)
+        self._view.inpTag.textChanged.connect(self.on_tag_editing)
+
     def read_recipe_from_view(self): #FixMe read full recipe and cast as recipe instance 
         """ reads recipe from gui and returns recipe object 
         Returns recipe (recipe object)  """
@@ -62,6 +66,14 @@ class PyQtRecipeEditorController():
         ingredients = self._view.inpIngredients.get_ingredients()
         return ingredients
 
+    def on_tag_editing(self):
+        self._view.disAssistantHUD.setPlainText('Tag help text ...')
+        tag_draft = self._view.inpTag.text()
+        if len(tag_draft) > 0:
+            suggestions = [match for match in self._view.database_model['tags'] if tag_draft in match]
+            self._view.disAssistantSuggestions.clear()
+            self._view.disAssistantSuggestions.addItems(suggestions)
+
     def on_add_tag_clicked(self):
         tag = QListWidgetItem(self._view.inpTag.text())
         self._view.disTags.addItem(tag)
@@ -71,9 +83,12 @@ class PyQtRecipeEditorController():
         row = self._view.disTags.currentRow()
         self._view.disTags.takeItem(row)
 
-
     def on_insert_recipe_clicked(self): #connect to databasepersistence class 
         return
+
+    def on_inpIngredients_cell_activated(self, row, column):
+        print("controller-oninpingr_cell_activated: cell activated event fired ...")
+        self._view.disAssistantHUD.setPlainText('Ingredients help text ...')
 
     def on_validate_clicked(self):
         print(self.read_recipe_from_view())

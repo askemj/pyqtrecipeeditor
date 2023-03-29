@@ -315,20 +315,7 @@
      <string>Recipe assistant</string>
     </property>
    </widget>
-   <widget class="QTextBrowser" name="disAssistantHUD">
-    <property name="geometry">
-     <rect>
-      <x>810</x>
-      <y>280</y>
-      <width>251</width>
-      <height>241</height>
-     </rect>
-    </property>
-    <property name="autoFillBackground">
-     <bool>false</bool>
-    </property>
-   </widget>
-   <widget class="QListView" name="disAssistantList">
+   <widget class="QListWidget" name="disAssistantSuggestions">
     <property name="geometry">
      <rect>
       <x>810</x>
@@ -336,6 +323,19 @@
       <width>251</width>
       <height>161</height>
      </rect>
+    </property>
+   </widget>
+   <widget class="QTextEdit" name="disAssistantHUD">
+    <property name="geometry">
+     <rect>
+      <x>810</x>
+      <y>280</y>
+      <width>251</width>
+      <height>251</height>
+     </rect>
+    </property>
+    <property name="readOnly">
+     <bool>true</bool>
     </property>
    </widget>
   </widget>
