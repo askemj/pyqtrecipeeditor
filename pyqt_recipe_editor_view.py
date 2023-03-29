@@ -1,5 +1,6 @@
 from PyQt_recipe_editor_mainwindow import Ui_MainWindow
 from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtWidgets import QCompleter 
 from ingredienttablewidget import IngredientsTableWidget
 
 class RecipeEditorView(Ui_MainWindow):
@@ -22,6 +23,10 @@ class RecipeEditorView(Ui_MainWindow):
 
         self.inpIngredients = IngredientsTableWidget(self.centralwidget)
         self.inpIngredients.setGeometry(QtCore.QRect(20, 330, 691, 192)) 
+
+    def enable_autocomplete(self):
+        tag_completer = QCompleter(self.database_model['tags'])
+        self.inpTag.setCompleter(tag_completer)
 
 
     def load_static_database_data(self):

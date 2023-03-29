@@ -11,6 +11,7 @@ class PyQtRecipeEditorController():
         if self._database.test_connection():
             self._view.database_model = self._database.read_all_secondary_database_data()
             self._view.load_static_database_data() 
+            self._view.enable_autocomplete()
         else:
             msg_box = QMessageBox()
             msg_box.setIcon(QMessageBox.Critical )
