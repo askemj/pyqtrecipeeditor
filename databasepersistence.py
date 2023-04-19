@@ -133,45 +133,39 @@ class DatabasePersistence:
         finally:
             cnx.commit()
             cnx.close()
-        
+
     def insert_recipe(self, recipe): 
         """ Inserts recipe in database 
         
         args: recipe, custom recipe object
         returns: status (boolean) true if succesfull insert
         """
-        status = True
+        status = False
         ### Recipe info 
-        sql_recipe_info_str = f"""INSERT INTO Ret (Ret.ret_navn, Ret.noter, Ret.forberedelsestid_tid,
-	        Ret.totaltid_tid, Ret.antal_portioner, Ret.Opskriftstype_opskriftstype_id )
-            VALUES ('{recipe.name}', '{recipe.notes}', {str(recipe.preparation_time)}, {str(recipe.total_time)}, {str(recipe.N_servings)}, 
-                (SELECT opskriftstype_id FROM Opskriftstype WHERE opskriftstype_tekst = '{recipe.recipe_type}'))
-            ON DUPLICATE KEY UPDATE
-	            Ret.ret_navn = '{recipe.name}',
-                Ret.noter = '{recipe.notes}', 
-                Ret.forberedelsestid_tid = {str(recipe.preparation_time)},
-                Ret.totaltid_tid = {str(recipe.total_time)},
-                Ret.antal_portioner = {str(recipe.N_servings)},
-                Ret.Opskriftstype_opskriftstype_id = (SELECT opskriftstype_id FROM Opskriftstype WHERE opskriftstype_tekst = '{recipe.recipe_type}');"""
-
-        try:
-            cnx = mysql.connector.connect(**self.config)
+        try: #FixMe Refactor Worlds largest try statement 
+            cnx = mysql.connector.connect(**self.config) #NB "master" connection object
+            sql_recipe_info_str = f"""INSERT INTO Ret (Ret.ret_navn, Ret.noter, Ret.forberedelsestid_tid,
+                Ret.totaltid_tid, Ret.antal_portioner, Ret.Opskriftstype_opskriftstype_id )
+                VALUES ('{recipe.name}', '{recipe.notes}', {str(recipe.preparation_time)}, {str(recipe.total_time)}, {str(recipe.N_servings)}, 
+                    (SELECT opskriftstype_id FROM Opskriftstype WHERE opskriftstype_tekst = '{recipe.recipe_type}'))
+                ON DUPLICATE KEY UPDATE
+                    Ret.ret_navn = '{recipe.name}',
+                    Ret.noter = '{recipe.notes}', 
+                    Ret.forberedelsestid_tid = {str(recipe.preparation_time)},
+                    Ret.totaltid_tid = {str(recipe.total_time)},
+                    Ret.antal_portioner = {str(recipe.N_servings)},
+                    Ret.Opskriftstype_opskriftstype_id = (SELECT opskriftstype_id FROM Opskriftstype WHERE opskriftstype_tekst = '{recipe.recipe_type}');"""
             cursor = cnx.cursor()
+
+            #insert general recipe info 
             cursor.execute(sql_recipe_info_str)
+
+            #get recipe ID
             cursor.execute(f"""SELECT Ret.ret_id FROM Ret WHERE Ret.ret_navn = '{recipe.name}'""")  #NB in case of update lastrowid is always 0 
             recipe.ID = int( cursor.fetchone()[0] ) #FixMe NB there may be an error if the cursor 
             print("recipe id is " + str(recipe.ID) + " for recipe: " + recipe.name) 
-        except Exception as e:
-            print(e)
-            status = False
-        finally:
-            cnx.commit()
-            cnx.close()
 
-        ### Tags 
-        try:
-            cnx = mysql.connector.connect(**self.config)
-            cursor = cnx.cursor()
+            ### Tags 
             for tag in recipe.tags: #FixMe probably insert or ignore instead of on duplicate key ...
                 sql_tag_insert_str = f""" INSERT INTO Tag (Tag.tag_tekst) 
                     VALUES ('{tag.text}')
@@ -179,24 +173,18 @@ class DatabasePersistence:
                     Tag.tag_tekst = '{tag.text}';"""
                 print(sql_tag_insert_str)
                 cursor.execute(sql_tag_insert_str)
+
+                #Get tag ID
                 cursor.execute(f"""SELECT Tag.tag_id FROM Tag WHERE Tag.tag_tekst = '{tag.text}'""")  #NB in case of update lastrowid is always 0 
                 tag.ID = int( cursor.fetchone()[0] ) #FixMe NB there may be an error if the cursor 
-                #tag.ID = cursor.lastrowid 
                 print(f'recipe id = {recipe.ID}, tag ID is {tag.ID}')
+
+                #Link tag to recipe
                 sql_tag_link_to_recipe = f""" INSERT INTO RetTag (RetTag.Ret_ret_id, RetTag.Tag_tag_id)
                     VALUES ({recipe.ID}, {tag.ID});""" #FixMe fix for duplicate entries 
                 cursor.execute(sql_tag_link_to_recipe)
-        except Exception as e:
-            print(e)
-            status = False
-        finally:
-            cnx.commit()
-            cnx.close()
         
-        ### Ingredients 
-        try: #FixMe remember cases where not all info is defined, eg no unit 
-            cnx = mysql.connector.connect(**self.config)
-            cursor = cnx.cursor()
+            ### Ingredients      #FixMe remember cases where not all info is defined, eg no unit 
             for ingredient in recipe.ingredients: #FixMe probably insert or ignore instead of on duplicate key ...
                 sql_ingredient_insert_str = f""" INSERT INTO Vare (vare_navn, basisvare, Varekategori_varekategori_id) 
                     VALUES ('{ingredient.name}', {ingredient.isBasic}, 
@@ -209,10 +197,13 @@ class DatabasePersistence:
                 print(sql_ingredient_insert_str)
 
                 cursor.execute(sql_ingredient_insert_str)
+
+                #get ID of ingredient
                 cursor.execute(f"""SELECT Vare.vare_id FROM Vare WHERE Vare.vare_navn = '{ingredient.name}'""")  #NB in case of update lastrowid is always 0 
                 ingredient.ID = int( cursor.fetchone()[0] ) #FixMe NB there may be an error if the cursor 
                 print(str(ingredient.ID))
 
+                #insert unit
                 sql_insert_unit = f""" INSERT INTO Enhed (enhed_navn)
                     VALUES ('{ingredient.unit}')
                     ON DUPLICATE KEY UPDATE
@@ -220,10 +211,13 @@ class DatabasePersistence:
                 """
                 print(sql_insert_unit)
                 cursor.execute(sql_insert_unit)
+
+                #get ID of unit
                 cursor.execute(f"""SELECT Enhed.enhed_id FROM Enhed WHERE Enhed.enhed_navn = '{ingredient.unit}'""")  #NB in case of update lastrowid is always 0 
                 _unit_id = int( cursor.fetchone()[0] ) #FixMe NB there may be an error if the cursor 
                 print(str(_unit_id))
 
+                #link all ingredient info with recipe
                 sql_link_ingredient_info_to_recipe = f""" INSERT INTO RetVare (maengde, Enhed_enhed_id, Ret_ret_id, Vare_vare_id, Varefunktion_Varefunktion_id) 
                     VALUES ({ingredient.quantity}, {_unit_id}, {recipe.ID}, {ingredient.ID}, 
                         (SELECT Varefunktion.varefunktion_id FROM Varefunktion WHERE Varefunktion.Varefunktion_tekst = '{ingredient.function}'))
@@ -237,11 +231,14 @@ class DatabasePersistence:
                 print(sql_link_ingredient_info_to_recipe)
                 cursor.execute(sql_link_ingredient_info_to_recipe)
                 print(sql_link_ingredient_info_to_recipe)
+
+                #If no errors so far, set successfull status 
+                cnx.commit() #commit new info to database 
+                status = True 
         except Exception as e:
             print(e)
             status = False
         finally:
-            cnx.commit()
             cnx.close()
         return status
     
