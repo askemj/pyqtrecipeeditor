@@ -1,0 +1,15 @@
+# Database Manifest 
+
+## Antal portioner 
+Der tages udgangspunkt i at et barn er spiser en halv portion således at en ret til en aften til os fire er 3 portioner. 
+
+## Enheder 
+Enheder angives som lægmand dvs. liter angives med lille "l" (dl *ikke* dL). Der anvendes punktum efter forkortelser fx. "spsk." og "tsk."
+
+## Mængder
+Mængder angives med komma (",") og med ned til 2 decimalers præcision. Cirka mængden *noget* angives som -1. 
+
+## Tags 
+
+# Bibliotek 
+

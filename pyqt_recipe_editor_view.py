@@ -30,6 +30,14 @@ class RecipeEditorView(Ui_MainWindow):
         db = self.database_model 
         self.inpRecType.addItems(db["recipe_types"])
         self.inpIngredients.initiate_rows(db['ingredient_categories'], db["ingredient_functions"])
+
+    def load_manifest_in_assistant(self):
+        try:
+            with open('database_manifest.md') as f:
+                manifest = f.read()
+        except FileNotFoundError: 
+            manifest = 'ERROR: Manifest file not found'
+        self.disAssistantHUD.setPlainText(manifest)
     
     def read_ingredients(self):
         """ returns ingredients (list): list of ingredients added in the view """
