@@ -1,4 +1,4 @@
-from recipe import Recipe
+from recipe import Recipe, Tag
 from PyQt5.QtWidgets import QMessageBox, QListWidgetItem
 
 class PyQtRecipeEditorController():
@@ -30,36 +30,38 @@ class PyQtRecipeEditorController():
         self._view.btnAddTag.clicked.connect(self.on_add_tag_clicked)
         self._view.btnDelTag.clicked.connect(self.on_del_tag_clicked)
 
+        #workflow
+        self._view.btnInsertInDB.clicked.connect(self.on_insert_recipe_clicked)
+
     def read_recipe_from_view(self): #FixMe read full recipe and cast as recipe instance 
         """ reads recipe from gui and returns recipe object 
-        Returns recipe (recipe object)  """
+
+        Returns 
+            recipe (recipe object)  """
+        
         name = self._view.inpRecTitle.text()
-        n_servs = self._view.inpNServings.text()
+        n_servs = self._view.inpNServings.text() #FixMe must be cast as float !!!
         prep_time = self._view.inpPrepTime.text()
         tot_time = self._view.inpTotTime.text()
         notes = self._view.inpRecNotes.toPlainText()
         rec_type = self._view.inpRecType.currentText()
-        tags = self.read_tags_from_view()
-        ingredients = self.read_ingredients_from_view()
-        recipe = Recipe(name, notes,n_servs, prep_time, tot_time, rec_type, tags, ingredients)
+        tags = self._read_tags_from_view()
+        ingredients = self._read_ingredients_from_view()
+        recipe = None
+        if "" not in [name, n_servs, prep_time, tot_time]: 
+            n_servs = float(n_servs)
+            prep_time = float(prep_time)
+            tot_time = float(tot_time)
+            recipe = Recipe(name, notes,n_servs, prep_time, tot_time, rec_type, tags, ingredients)
         return recipe 
 
-    def read_tags_from_view(self):
+    def _read_tags_from_view(self):
         tags = []
-        for n in range(self._view.disTags.count()-1):
-            tags.append( str(self._view.inpTags.item(n))) #NB item is a QListWidgetItem
+        for n in range(self._view.disTags.count()):
+            tags.append(Tag(str(self._view.disTags.item(n).text()))) #NB item is a QListWidgetItem
         return tags 
 
-    def read_ingredients_from_view(self):
-        # ingredients = []
-        # for row in range(self._view.inpIngredients.rowCount()):
-        #     quantity = self._view.inpIngredients.item(row, 0).text()
-        #     unit = self._view.inpIngredients.item(row, 1).text()
-        #     name = self._view.inpIngredients.item(row, 2).text()
-        #     function = self._view.inpIngredients.item(row, 3).text()
-        #     category = self._view.inpIngredients.item(row, 4).text()
-        #     ingredient = Ingredient(quantity=quantity, unit=unit, name=name, function=function, category=category, isBasic=False) #FixMe hardcoded to not render basic items
-        #     ingredients.append(ingredient)
+    def _read_ingredients_from_view(self):
         ingredients = self._view.inpIngredients.get_ingredients()
         return ingredients
 
@@ -72,10 +74,15 @@ class PyQtRecipeEditorController():
         row = self._view.disTags.currentRow()
         self._view.disTags.takeItem(row)
 
-
     def on_insert_recipe_clicked(self): #connect to databasepersistence class 
-        return
+        recipe = self.read_recipe_from_view()
+        if recipe is not None: 
+            success = self._database.insert_recipe(recipe)
+            if success:
+                print("Recipe successfully inserted!")
+            elif not success:
+                print("An error occurred, recipe not properly inserted!")
+        else:
+            print("Recipe was not read correctly, please check your input")
+    
 
-    def on_validate_clicked(self):
-        print(self.read_recipe_from_view())
-        pass
