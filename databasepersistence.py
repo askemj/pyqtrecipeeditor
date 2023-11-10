@@ -266,9 +266,9 @@ class DatabasePersistence:
         }
 
         sql_tags_query = "SELECT Tag.tag_tekst FROM Tag;"
-        sql_ingr_function_query = "SELECT Varefunktion.varefunktion_tekst FROM Varefunktion;"
-        sql_ingr_category_query = "SELECT Varekategori.varekategori_tekst FROM Varekategori;"
-        sql_type_query = "SELECT Opskriftstype.opskriftstype_tekst FROM Opskriftstype;"
+        sql_ingr_function_query = "SELECT Varefunktion.varefunktion_tekst FROM Varefunktion ORDER BY varefunktion_id;"
+        sql_ingr_category_query = "SELECT Varekategori.varekategori_tekst FROM Varekategori ORDER BY varekategori_id;"
+        sql_type_query = "SELECT Opskriftstype.opskriftstype_tekst FROM Opskriftstype ORDER BY opskriftstype_id;"
         queries = [[sql_tags_query, 'tags'], [sql_ingr_function_query, 'ingredient_functions'], [sql_ingr_category_query, 'ingredient_categories'], [sql_type_query, 'recipe_types']]
 
         sql_ingredients_query = """ SELECT Vare.vare_navn, Vare.basisvare, Varekategori.varekategori_tekst FROM Vare
