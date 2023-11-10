@@ -37,7 +37,7 @@ class RecipeEditorView(Ui_MainWindow):
                 manifest = f.read()
         except FileNotFoundError: 
             manifest = 'ERROR: Manifest file not found'
-        self.disAssistantHUD.setPlainText(manifest)
+        self.disAssistantHUD.setMarkdown(manifest)
     
     def read_ingredients(self):
         """ returns ingredients (list): list of ingredients added in the view """
