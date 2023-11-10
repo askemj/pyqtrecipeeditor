@@ -22,7 +22,7 @@ class RecipeEditorView(Ui_MainWindow):
 
         #set dictionary for static offline database data
 
-        self.inpIngredients = IngredientsTableWidget(self.centralwidget)
+        self.inpIngredients = IngredientsTableWidget(self.centralwidget, self.database_model)
         self.inpIngredients.setGeometry(QtCore.QRect(20, 330, 691, 192)) 
 
     def enable_autocomplete(self):
@@ -37,7 +37,7 @@ class RecipeEditorView(Ui_MainWindow):
         """
         db = self.database_model 
         self.inpRecType.addItems(db["recipe_types"])
-        self.inpIngredients.initiate_rows(db['ingredient_categories'], db["ingredient_functions"])
+        self.inpIngredients.initiate_rows(db)
     
     def read_ingredients(self):
         """ returns ingredients (list): list of ingredients added in the view """

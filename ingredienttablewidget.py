@@ -1,6 +1,7 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QApplication, QWidget, QTableWidget, QComboBox, QCheckBox
 from recipe import Ingredient
+from PyQt5.QtWidgets import QCompleter 
 
 class comboFunction(QComboBox): 
     def __init__(self, parent, functions):
@@ -16,9 +17,10 @@ class IngredientsTableWidget(QtWidgets.QTableWidget):
     """ Provides ingredient specific TableWidget functionality """
     ingredient_functions = []
     ingredient_categories = []
+    database_ingredients = []
     INITIAL_ROW_COUNT = 8
 
-    def __init__(self, parent): 
+    def __init__(self, parent, database_model): 
         """ Custom Ingredient Table widget 
         
         args 
@@ -30,7 +32,7 @@ class IngredientsTableWidget(QtWidgets.QTableWidget):
         self._set_column_headers()
         self.setRowCount(self.INITIAL_ROW_COUNT)
 
-    def initiate_rows(self, ingredient_functions, ingredient_categories):
+    def initiate_rows(self, database_model):
         """ initiate initial rows, for calling once database is ready
         
         args 
@@ -38,9 +40,9 @@ class IngredientsTableWidget(QtWidgets.QTableWidget):
             ingredient_categories (list): list of ingredient category options for combobox
         """
 
-        self.ingredient_functions = ingredient_functions
-        self.ingredient_categories = ingredient_categories
-        
+        self.ingredient_functions = database_model["ingredient_categories"]
+        self.ingredient_categories = database_model["ingredient_functions"]
+        self.database_ingredients = database_model["ingredients"]
         
         for row in range(self.INITIAL_ROW_COUNT):
             self._add_row_at_index(row)
@@ -100,6 +102,13 @@ class IngredientsTableWidget(QtWidgets.QTableWidget):
         self.setCellWidget(row, 4, comboCat)
         cbox = QCheckBox(self)
         self.setCellWidget(row,5,cbox)
+
+        # completion 
+        _completer_lineedit = QtWidgets.QLineEdit()
+        ingredient_names = [item["name"] for item in self.database_ingredients]
+        ingredient_completer = QCompleter(ingredient_names)
+        _completer_lineedit.setCompleter(ingredient_completer)
+        self.setCellWidget(row,2,_completer_lineedit)
 
     def add_row(self):
         """ Adds row at the end of the QTableWidget """
