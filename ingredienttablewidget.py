@@ -92,7 +92,23 @@ class IngredientsTableWidget(QtWidgets.QTableWidget):
             else:
                 print("Error in row: " + str(row) + ", row skipped")
         return ingredients_list
+    
+    def autofill_data_on_autocomplete(self):
+        row = self.currentRow()
+        
+        #find ingredient object matching autocompletion 
+        selected_ingredient_name = self.cellWidget(row,2).text()
+        find_ingredient_list = [item for item in self.database_ingredients if item['name'] == selected_ingredient_name]
+        _ingredient = find_ingredient_list[0]
+        _category = _ingredient["category"]
 
+        #set category 
+        self.cellWidget(row,3).setCurrentText(_category) 
+        
+        #set is basic status 
+        if _ingredient["isBasic"] == True:
+            self.cellWidget(row, 5).setChecked(True)
+        
     def _add_row_at_index(self, row):   
         item = QtWidgets.QTableWidgetItem()
         self.setVerticalHeaderItem(row, item)
@@ -109,6 +125,9 @@ class IngredientsTableWidget(QtWidgets.QTableWidget):
         ingredient_completer = QCompleter(ingredient_names)
         _completer_lineedit.setCompleter(ingredient_completer)
         self.setCellWidget(row,2,_completer_lineedit)
+        
+        #auto fill data when completing ingredient name 
+        ingredient_completer.activated.connect(self.autofill_data_on_autocomplete)
 
     def add_row(self):
         """ Adds row at the end of the QTableWidget """
