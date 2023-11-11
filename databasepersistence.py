@@ -50,60 +50,69 @@ class DatabasePersistence:
                     cnx.close()
             return success
 
-    def select_recipe(self, recipe_id): # FixMe insert actual MySQL
+    def select_recipe(self, recipe_id):
+        """ Selects recipe in database based on passed recipe ID 
+        
+        args: recipe_id, database id of recipe
+        returns: recipe, custom recipe object 
+        """
         _ingredient_list = []
         _tags_list = []
-        ### get ingredients 
-        sql_ingredient_query = f""" ingredient query """    #FixMe insert this string and write it to give ID too!
+
+        sql_ingredient_query = f""" SELECT RetVare.maengde, Enhed.enhed_navn, Vare.vare_navn, Varekategori.varekategori_tekst,  
+                Varefunktion.Varefunktion_tekst, Vare.basisvare FROM RetVare 
+            INNER JOIN Enhed ON RetVare.Enhed_enhed_id = Enhed.enhed_id
+            INNER JOIN Vare ON RetVare.Vare_vare_id = Vare.vare_id
+            INNER JOIN Varekategori ON  RetVare.Vare_vare_id = Vare.vare_id AND Vare.vare_id = Varekategori.varekategori_id
+            INNER JOIN Varefunktion ON Varefunktion_Varefunktion_id = Varefunktion_id 
+            WHERE RetVare.Ret_ret_id = {str(recipe_id)};  """
+        
+        sql_tag_query = f""" SELECT Tag.tag_id, Tag.tag_tekst FROM Ret 
+            INNER JOIN RetTag ON Ret.ret_id = RetTag.Ret_ret_id
+            INNER JOIN Tag ON Tag.tag_id = RetTag.Tag_tag_id WHERE Ret.ret_id = {str(recipe_id)}; """ 
+        
+        sql_recipe_info_query = f""" SELECT Ret.ret_navn, Ret.noter, Ret.antal_portioner, Ret.forberedelsestid_tid, 
+                Ret.totaltid_tid, Opskriftstype.opskriftstype_tekst
+            FROM Ret
+            INNER JOIN Opskriftstype ON Ret.Opskriftstype_opskriftstype_id = Opskriftstype.opskriftstype_id
+            WHERE Ret.ret_id = {str(recipe_id)}; """
 
         try:
             cnx = mysql.connector.connect(**self.config)
             cursor = cnx.cursor()
+
+            ### get ingredients 
             cursor.execute(sql_ingredient_query)
             result = cursor.fetchall()
-            for item in result: #consider getting ID as well 
-                ingredient = Ingredient(item[1], item[2], item[3], item[4], item[5], item[6])
-                #ingredient.ID = item[0]
+            for item in result: 
+                #ingredient constructor takes: quantity, unit, name, category, function, isBasic)
+                ingredient = Ingredient(item[0], item[1], item[2], item[3], item[4], item[5])
+                print(ingredient)
                 _ingredient_list.append(ingredient)
-        except Exception as e:
-            print(e)
-        finally:
-            cnx.commit()
-            cnx.close()
 
-        ### Get tags 
-        sql_tag_query = f""" tag query """    #FixMe insert this string and write it to give ID too!
-
-        try:
-            cnx = mysql.connector.connect(**self.config)
-            cursor = cnx.cursor()
+            ### Get tags
             cursor.execute(sql_tag_query)
             result = cursor.fetchall()
-            for item in result: #consider getting ID as well 
+            for item in result: 
                 tag = Tag(item[1])
-                #tag.ID = item[0]
+                tag.ID = item[0]
+                print(tag)
                 _tags_list.append(tag)
-        except Exception as e:
-            print(e)
-        finally:
-            cnx.commit()
-            cnx.close()
 
-        ### Get recipe info and construct recipe 
-        sql_recipe_info_query = f""" recipe info """ #FixMe insert this string and write it to give ID too!
-
-        try:
-            cnx = mysql.connector.connect(**self.config)
-            cursor = cnx.cursor()
+            ### Get recipe info and construct recipe 
             cursor.execute(sql_recipe_info_query)
             result = cursor.fetchone()
-            recipe = Recipe(result[1], result[2], result[3], result[4], result[5], result[6], _tags_list, _ingredient_list)
-            recipe.ID = result[0]
+            # recipe constructor takes: name, notes, Nservings, preparation_time, total_time, recipe_type, tags, ingredients
+            recipe = Recipe(result[0], result[1], result[2], result[3], result[4], result[5], _tags_list, _ingredient_list)
+            recipe.ID = recipe_id
+            print(recipe)
         except Exception as e:
+            recipe = None 
+            print("0000ps! \nAn exception occurred:")
             print(e)
         finally:
-            cnx.commit()
             cnx.close()
+        return recipe
 
     def update_recipe(self, new_recipe):
         old_recipe = self.select_recipe(new_recipe.ID) # retrieves recipe as is in database
@@ -133,64 +142,58 @@ class DatabasePersistence:
         finally:
             cnx.commit()
             cnx.close()
-        
+
     def insert_recipe(self, recipe): 
         """ Inserts recipe in database 
         
         args: recipe, custom recipe object
         returns: status (boolean) true if succesfull insert
         """
-
-        sql_recipe_info_str = f"""INSERT INTO Ret (Ret.ret_navn, Ret.noter, Ret.forberedelsestid_tid,
-	        Ret.totaltid_tid, Ret.antal_portioner, Ret.Opskriftstype_opskriftstype_id )
-            VALUES ('{recipe.name}', '{recipe.notes}', {str(recipe.preparation_time)}, {str(recipe.total_time)}, {str(recipe.N_servings)}, 
-                (SELECT opskriftstype_id FROM Opskriftstype WHERE opskriftstype_tekst = '{recipe.recipe_type}'))
-            ON DUPLICATE KEY UPDATE
-	            Ret.ret_navn = '{recipe.name}',
-                Ret.noter = '{recipe.notes}', 
-                Ret.forberedelsestid_tid = {str(recipe.preparation_time)},
-                Ret.totaltid_tid = {str(recipe.total_time)},
-                Ret.antal_portioner = {str(recipe.N_servings)},
-                Ret.Opskriftstype_opskriftstype_id = (SELECT opskriftstype_id FROM Opskriftstype WHERE opskriftstype_tekst = '{recipe.recipe_type}');"""
-
-        try:
-            cnx = mysql.connector.connect(**self.config)
+        status = False
+        ### Recipe info 
+        try: #FixMe Refactor Worlds largest try statement 
+            cnx = mysql.connector.connect(**self.config) #NB "master" connection object
+            sql_recipe_info_str = f"""INSERT INTO Ret (Ret.ret_navn, Ret.noter, Ret.forberedelsestid_tid,
+                Ret.totaltid_tid, Ret.antal_portioner, Ret.Opskriftstype_opskriftstype_id )
+                VALUES ('{recipe.name}', '{recipe.notes}', {str(recipe.preparation_time)}, {str(recipe.total_time)}, {str(recipe.N_servings)}, 
+                    (SELECT opskriftstype_id FROM Opskriftstype WHERE opskriftstype_tekst = '{recipe.recipe_type}'))
+                ON DUPLICATE KEY UPDATE
+                    Ret.ret_navn = '{recipe.name}',
+                    Ret.noter = '{recipe.notes}', 
+                    Ret.forberedelsestid_tid = {str(recipe.preparation_time)},
+                    Ret.totaltid_tid = {str(recipe.total_time)},
+                    Ret.antal_portioner = {str(recipe.N_servings)},
+                    Ret.Opskriftstype_opskriftstype_id = (SELECT opskriftstype_id FROM Opskriftstype WHERE opskriftstype_tekst = '{recipe.recipe_type}');"""
             cursor = cnx.cursor()
+
+            #insert general recipe info 
             cursor.execute(sql_recipe_info_str)
+
+            #get recipe ID
             cursor.execute(f"""SELECT Ret.ret_id FROM Ret WHERE Ret.ret_navn = '{recipe.name}'""")  #NB in case of update lastrowid is always 0 
             recipe.ID = int( cursor.fetchone()[0] ) #FixMe NB there may be an error if the cursor 
-            print(str(recipe.ID)) 
-        except Exception as e:
-            print(e)
-        finally:
-            cnx.commit()
-            cnx.close()
+            print("recipe id is " + str(recipe.ID) + " for recipe: " + recipe.name) 
 
-        try:
-            cnx = mysql.connector.connect(**self.config)
-            cursor = cnx.cursor()
+            ### Tags 
             for tag in recipe.tags: #FixMe probably insert or ignore instead of on duplicate key ...
                 sql_tag_insert_str = f""" INSERT INTO Tag (Tag.tag_tekst) 
                     VALUES ('{tag.text}')
                     ON DUPLICATE KEY UPDATE
                     Tag.tag_tekst = '{tag.text}';"""
+                print(sql_tag_insert_str)
                 cursor.execute(sql_tag_insert_str)
+
+                #Get tag ID
                 cursor.execute(f"""SELECT Tag.tag_id FROM Tag WHERE Tag.tag_tekst = '{tag.text}'""")  #NB in case of update lastrowid is always 0 
                 tag.ID = int( cursor.fetchone()[0] ) #FixMe NB there may be an error if the cursor 
-                #tag.ID = cursor.lastrowid
-                #print(f'recipe id = {recipe.ID}, tag ID is {tag.ID}')
+                print(f'recipe id = {recipe.ID}, tag ID is {tag.ID}')
+
+                #Link tag to recipe
                 sql_tag_link_to_recipe = f""" INSERT INTO RetTag (RetTag.Ret_ret_id, RetTag.Tag_tag_id)
                     VALUES ({recipe.ID}, {tag.ID});""" #FixMe fix for duplicate entries 
                 cursor.execute(sql_tag_link_to_recipe)
-        except Exception as e:
-            print(e)
-        finally:
-            cnx.commit()
-            cnx.close()
         
-        try: #FixMe remember cases where not all info is defined, eg no unit 
-            cnx = mysql.connector.connect(**self.config)
-            cursor = cnx.cursor()
+            ### Ingredients      #FixMe remember cases where not all info is defined, eg no unit 
             for ingredient in recipe.ingredients: #FixMe probably insert or ignore instead of on duplicate key ...
                 sql_ingredient_insert_str = f""" INSERT INTO Vare (vare_navn, basisvare, Varekategori_varekategori_id) 
                     VALUES ('{ingredient.name}', {ingredient.isBasic}, 
@@ -203,10 +206,13 @@ class DatabasePersistence:
                 print(sql_ingredient_insert_str)
 
                 cursor.execute(sql_ingredient_insert_str)
+
+                #get ID of ingredient
                 cursor.execute(f"""SELECT Vare.vare_id FROM Vare WHERE Vare.vare_navn = '{ingredient.name}'""")  #NB in case of update lastrowid is always 0 
                 ingredient.ID = int( cursor.fetchone()[0] ) #FixMe NB there may be an error if the cursor 
                 print(str(ingredient.ID))
 
+                #insert unit
                 sql_insert_unit = f""" INSERT INTO Enhed (enhed_navn)
                     VALUES ('{ingredient.unit}')
                     ON DUPLICATE KEY UPDATE
@@ -214,10 +220,13 @@ class DatabasePersistence:
                 """
                 print(sql_insert_unit)
                 cursor.execute(sql_insert_unit)
+
+                #get ID of unit
                 cursor.execute(f"""SELECT Enhed.enhed_id FROM Enhed WHERE Enhed.enhed_navn = '{ingredient.unit}'""")  #NB in case of update lastrowid is always 0 
                 _unit_id = int( cursor.fetchone()[0] ) #FixMe NB there may be an error if the cursor 
                 print(str(_unit_id))
 
+                #link all ingredient info with recipe
                 sql_link_ingredient_info_to_recipe = f""" INSERT INTO RetVare (maengde, Enhed_enhed_id, Ret_ret_id, Vare_vare_id, Varefunktion_Varefunktion_id) 
                     VALUES ({ingredient.quantity}, {_unit_id}, {recipe.ID}, {ingredient.ID}, 
                         (SELECT Varefunktion.varefunktion_id FROM Varefunktion WHERE Varefunktion.Varefunktion_tekst = '{ingredient.function}'))
@@ -228,16 +237,19 @@ class DatabasePersistence:
                         RetVare.Vare_vare_id = {ingredient.ID},
                         RetVare.Varefunktion_Varefunktion_id = 
                             (SELECT Varefunktion.varefunktion_id FROM Varefunktion WHERE Varefunktion.Varefunktion_tekst = '{ingredient.function}');"""
+                print(sql_link_ingredient_info_to_recipe)
                 cursor.execute(sql_link_ingredient_info_to_recipe)
                 print(sql_link_ingredient_info_to_recipe)
+
+                #If no errors so far, set successfull status 
+                cnx.commit() #commit new info to database 
+                status = True 
         except Exception as e:
             print(e)
+            status = False
         finally:
-            cnx.commit()
             cnx.close()
-
-
-        #FixMe implement batch type mysql construction 
+        return status
     
     def read_all_secondary_database_data(self):
         """ Reads all supplemental databasedata
@@ -256,10 +268,10 @@ class DatabasePersistence:
 
         sql_recipe_names_query = "SELECT Ret.ret_navn FROM Ret"
         sql_tags_query = "SELECT Tag.tag_tekst FROM Tag;"
-        sql_ingr_function_query = "SELECT Varefunktion.varefunktion_tekst FROM Varefunktion;"
-        sql_ingr_category_query = "SELECT Varekategori.varekategori_tekst FROM Varekategori;"
-        sql_type_query = "SELECT Opskriftstype.opskriftstype_tekst FROM Opskriftstype;"
-        queries = [[sql_recipe_names_query, 'recipe_titles'], [sql_tags_query, 'tags'], [sql_ingr_function_query, 'ingredient_functions'], [sql_ingr_category_query, 'ingredient_categories'], [sql_type_query, 'recipe_types']]
+        sql_ingr_function_query = "SELECT Varefunktion.varefunktion_tekst FROM Varefunktion ORDER BY varefunktion_id;"
+        sql_ingr_category_query = "SELECT Varekategori.varekategori_tekst FROM Varekategori ORDER BY varekategori_id;"
+        sql_type_query = "SELECT Opskriftstype.opskriftstype_tekst FROM Opskriftstype ORDER BY opskriftstype_id;"
+        queries = [[sql_tags_query, 'tags'], [sql_ingr_function_query, 'ingredient_functions'], [sql_ingr_category_query, 'ingredient_categories'], [sql_type_query, 'recipe_types']]
 
         sql_ingredients_query = """ SELECT Vare.vare_navn, Vare.basisvare, Varekategori.varekategori_tekst FROM Vare
             INNER JOIN Varekategori ON Vare.Varekategori_varekategori_id = Varekategori.varekategori_id;"""
@@ -305,5 +317,8 @@ if __name__ == "__main__":
     #database.insert_recipe(new_recipe)
     
     #print( database._find_items_for_deletion(new_recipe2, new_recipe)[0][0].name )
-    db_info = database.read_all_secondary_database_data()
-    print(db_info)
+    #db_info = database.read_all_secondary_database_data()
+    #print(db_info)
+    #print(str(database.test_connection))
+    #_recipe = database.select_recipe(7)
+    #print(_recipe)
