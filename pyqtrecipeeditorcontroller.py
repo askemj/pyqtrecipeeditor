@@ -81,8 +81,20 @@ class PyQtRecipeEditorController():
             success = self._database.insert_recipe(recipe)
             if success:
                 print("Recipe successfully inserted!")
+                msg_box = QMessageBox()
+                msg_box.setText("Success!")
+                msg_box.setInformativeText("Recipe inserted successfully.")
+                msg_box.setWindowTitle("Success")
+                msg_box.exec()
             elif not success:
                 print("An error occurred, recipe not properly inserted!")
+                msg_box = QMessageBox()
+                msg_box.setIcon(QMessageBox.Critical )
+                msg_box.setText("Error!")
+                msg_box.setInformativeText("The recipe was not inserted correctly. Please check the console for hints of what went wrong.")
+                msg_box.setWindowTitle("Critical error")
+                msg_box.exec()
+                    
         else:
             print("Recipe was not read correctly, please check your input")
     
