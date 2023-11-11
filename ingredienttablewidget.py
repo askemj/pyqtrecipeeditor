@@ -78,10 +78,10 @@ class IngredientsTableWidget(QtWidgets.QTableWidget):
         n_rows = self.rowCount()
         ingredients_list = []
         for row in range(n_rows-1):
-            if None not in (self.item(row, 0), self.item(row,1), self.item(row,2)): #Check valid entries 
+            if (None or "") not in (self.item(row, 0), self.cellWidget(row,1), self.cellWidget(row,2).text()): #Check valid entries 
                 quantity = float(self.item(row, 0).text())
                 unit = self.item(row, 1).text().strip() #stripped of leading and trailing whitespaces
-                name = self.item(row, 2).text().strip()
+                name = self.cellWidget(row, 2).text().strip()
                 category = self.cellWidget(row, 3).currentText() #NB nested combobox  
                 function = self.cellWidget(row, 4).currentText() #NB nested combobox  )
                 is_basic = False
@@ -95,7 +95,7 @@ class IngredientsTableWidget(QtWidgets.QTableWidget):
     
     def autofill_data_on_autocomplete(self):
         row = self.currentRow()
-        
+
         #find ingredient object matching autocompletion 
         selected_ingredient_name = self.cellWidget(row,2).text()
         find_ingredient_list = [item for item in self.database_ingredients if item['name'] == selected_ingredient_name]
