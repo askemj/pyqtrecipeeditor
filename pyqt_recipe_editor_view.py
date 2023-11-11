@@ -35,9 +35,10 @@ class RecipeEditorView(Ui_MainWindow):
     def load_static_database_data(self):
         """ loads database data into view, for calling when database is ready 
         """
+        
         db = self.database_model 
         self.inpRecType.addItems(db["recipe_types"])
-        self.inpIngredients.initiate_rows(db['ingredient_categories'], db["ingredient_functions"])
+        self.inpIngredients.initiate_rows(db)
 
     def load_manifest_in_assistant(self):
         try:
