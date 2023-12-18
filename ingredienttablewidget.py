@@ -78,8 +78,8 @@ class IngredientsTableWidget(QtWidgets.QTableWidget):
         n_rows = self.rowCount()
         ingredients_list = []
         for row in range(n_rows-1):
-            if (None or "") not in (self.item(row, 0), self.cellWidget(row,1), self.cellWidget(row,2).text()): #Check valid entries 
-                quantity = float(self.item(row, 0).text())
+            if (None or "") not in (self.cellWidget(row, 0).text(), self.cellWidget(row,1), self.cellWidget(row,2).text()): #Check valid entries 
+                quantity = float(self.cellWidget(row, 0).text())
                 unit = self.item(row, 1).text().strip() #stripped of leading and trailing whitespaces
                 name = self.cellWidget(row, 2).text().strip()
                 category = self.cellWidget(row, 3).currentText() #NB nested combobox  
@@ -126,8 +126,16 @@ class IngredientsTableWidget(QtWidgets.QTableWidget):
         _completer_lineedit.setCompleter(ingredient_completer)
         self.setCellWidget(row,2,_completer_lineedit)
         
-        #auto fill data when completing ingredient name 
+        # auto fill data when completing ingredient name 
         ingredient_completer.activated.connect(self.autofill_data_on_autocomplete)
+
+        # double validation on quantity 
+        validated_quantity_lineedit = QtWidgets.QLineEdit()
+        _validator = QtGui.QRegExpValidator()
+        _regex = QtCore.QRegExp('[0-9]+\.*[0-9]{0,2}') # allow number optionally followed by "." and max 2 decimals
+        _validator.setRegExp(_regex)
+        validated_quantity_lineedit.setValidator(_validator)
+        self.setCellWidget(row, 0, validated_quantity_lineedit)
 
     def add_row(self):
         """ Adds row at the end of the QTableWidget """
