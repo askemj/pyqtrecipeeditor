@@ -13,6 +13,7 @@ Enheder angives som lægmand dvs. liter angives med lille "l" (dl *ikke* dL). De
 Mængder angives med komma (",") og med ned til 2 decimalers præcision. Cirka mængden *noget* angives som -1. 
 
 ## Tags 
+*Se biblioteket*
 
 ## Varekategori 
 Vand som ingrediens kan indsættes med kategorien "Diverse". 

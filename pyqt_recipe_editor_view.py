@@ -46,7 +46,26 @@ class RecipeEditorView(Ui_MainWindow):
                 manifest = f.read()
         except FileNotFoundError: 
             manifest = 'ERROR: Manifest file not found'
-        self.disAssistantHUD.setMarkdown(manifest)
+        enriched_manifest = self._enrich_manifest(manifest)
+        self.disAssistantHUD.setMarkdown(enriched_manifest)
+
+    def _enrich_manifest(self, manifest):        
+        #seed text 
+        enriched_manifest = manifest
+
+        # Recipes 
+        recipe_header_text =  '\n ## Opskrifter \n'
+        db_recipe_titles_joined = ', '.join(self.database_model['recipe_titles'])
+        enriching_text = recipe_header_text + db_recipe_titles_joined + '\n\n'
+        enriched_manifest += enriching_text
+        
+        # Tags 
+        tag_header_text = '\n ## Tags \n'
+        db_tags_joined = ', '.join(self.database_model['tags']) 
+        enriching_text = tag_header_text + db_tags_joined
+        enriched_manifest += enriching_text
+        return enriched_manifest
+
     
     def read_ingredients(self):
         """ returns ingredients (list): list of ingredients added in the view """
