@@ -9,6 +9,7 @@ class RecipeEditorView(Ui_MainWindow):
 
     database_model = {
         'recipe_titles': [],
+        'units': [],
         'tags': [],
         'ingredient_functions': [],
         'ingredient_categories': [],
