@@ -271,12 +271,12 @@ class DatabasePersistence:
         sql_ingr_function_query = "SELECT Varefunktion.varefunktion_tekst FROM Varefunktion ORDER BY varefunktion_id;"
         sql_ingr_category_query = "SELECT Varekategori.varekategori_tekst FROM Varekategori ORDER BY varekategori_id;"
         sql_type_query = "SELECT Opskriftstype.opskriftstype_tekst FROM Opskriftstype ORDER BY opskriftstype_id;"
-        queries = [[sql_tags_query, 'tags'], [sql_ingr_function_query, 'ingredient_functions'], [sql_ingr_category_query, 'ingredient_categories'], [sql_type_query, 'recipe_types']]
+        queries = [[sql_recipe_names_query, 'recipe_titles'], [sql_tags_query, 'tags'], [sql_ingr_function_query, 'ingredient_functions'], [sql_ingr_category_query, 'ingredient_categories'], [sql_type_query, 'recipe_types']]
 
         sql_ingredients_query = """ SELECT Vare.vare_navn, Vare.basisvare, Varekategori.varekategori_tekst FROM Vare
             INNER JOIN Varekategori ON Vare.Varekategori_varekategori_id = Varekategori.varekategori_id;"""
         try:
-            # tags, ingr_fcts, ingr_cats and types
+            # recipe titles, tags, ingr_fcts, ingr_cats and types
             cnx = mysql.connector.connect(**self.config)
             cursor = cnx.cursor()
             for query, field in queries:
