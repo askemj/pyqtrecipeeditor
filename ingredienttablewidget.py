@@ -18,7 +18,7 @@ class IngredientsTableWidget(QtWidgets.QTableWidget):
     ingredient_functions = []
     ingredient_categories = []
     database_ingredients = []
-    INITIAL_ROW_COUNT = 8
+    INITIAL_ROW_COUNT = 16
 
     def __init__(self, parent, database_model): 
         """ Custom Ingredient Table widget 
@@ -105,9 +105,13 @@ class IngredientsTableWidget(QtWidgets.QTableWidget):
         #set category 
         self.cellWidget(row,3).setCurrentText(_category) 
         
-        #set is basic status 
+        #set isbasic status 
         if _ingredient["isBasic"] == True:
             self.cellWidget(row, 5).setChecked(True)
+
+        #change focus to next line 
+        if row <= self.rowCount():
+            self.setCurrentCell(row+1, 0)
         
     def _add_row_at_index(self, row):   
         item = QtWidgets.QTableWidgetItem()
